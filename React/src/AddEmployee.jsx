@@ -30,23 +30,21 @@ export default function AddEmployee({ setAdd }) {
   const { state, dispatch, getEmployees } = useContext(EmployeesContext);
   const [toggle, setToggle] = useState(true);
   const getDepartments = async () => {
-    axios
-      .get('/departments', {
+    try {
+      const res = axios.get('/departments', {
         headers: {
           token: state.token,
         },
-      })
-      .then((res) => {
-        setDepartments(res.data);
-      })
-      .catch((err) => {
-        if (err.response.status === 500) {
-          dispatch({ status: err.response.status, error: err });
-          window.location.pathname = '/';
-        } else {
-          console.log(err);
-        }
       });
+      setDepartments(res.data);
+    } catch (err) {
+      if (err.response.status === 500) {
+        dispatch({ status: err.response.status, error: err });
+        window.location.pathname = '/';
+      } else {
+        console.log(err);
+      }
+    }
   };
   useEffect(() => {
     getDepartments();
@@ -79,31 +77,33 @@ export default function AddEmployee({ setAdd }) {
       formData.append('phone', values.phone);
       setMsg('');
       setError('');
-      await axios
-        .post('/employees', formData, {
+      try {
+        const res = await axios.post('/employees', formData, {
           headers: {
             token: JSON.parse(localStorage.getItem('token')),
           },
-        })
-        .then((res) => {
-          setTimeout(() => {
-            setLoading(false);
-            setMsg(res.data.msg);
-          }, 2000);
-          console.log(res.data);
-        })
-        .catch((err) => {
-          setTimeout(() => {
-            setLoading(false);
-            if (err.response.status === 400) {
-              setError(err.response.data.msg);
-            } else {
-              dispatch({ status: err.response.status, error: err });
-            }
-          }, 2000);
-          console.log(err);
         });
-      getEmployees();
+        setTimeout(() => {
+          setLoading(false);
+          setMsg(res.data.msg);
+        }, 2000);
+        console.log(res.data);
+        getEmployees();
+      } catch (err) {
+        setTimeout(() => {
+          setLoading(false);
+          if (err.response.status === 400) {
+            if (err.response.data.errors) {
+              setError(err.response.data.errors.errors[0].msg);
+            } else {
+              setError(err.response.data.msg);
+            }
+          } else {
+            dispatch({ status: err.response.status, error: err });
+          }
+        }, 2000);
+        console.log(err);
+      }
     },
     validate() {
       const errors = {};
@@ -201,6 +201,7 @@ export default function AddEmployee({ setAdd }) {
                     name="image"
                     accept="image/*"
                     onChange={saveFile}
+                    onBlur={formik.handleBlur}
                     invalid={formik.errors.image}
                     required
                   />
@@ -221,14 +222,17 @@ export default function AddEmployee({ setAdd }) {
                       name="firstname"
                       value={formik.values.firstname}
                       onChange={formik.handleChange}
-                      invalid={formik.errors.firstname}
+                      onBlur={formik.handleBlur}
+                      invalid={
+                        formik.touched.firstname && formik.errors.firstname
+                      }
                       required
                     />
-                    {formik.errors.firstname ? (
+                    {formik.touched.firstname && formik.errors.firstname && (
                       <FormText color="danger">
                         {formik.errors.firstname}
                       </FormText>
-                    ) : null}
+                    )}
                   </FormGroup>
                   <FormGroup className="m-1">
                     <Label className="fw-bold">
@@ -241,14 +245,17 @@ export default function AddEmployee({ setAdd }) {
                       name="lastname"
                       value={formik.values.lastname}
                       onChange={formik.handleChange}
-                      invalid={formik.errors.lastname}
+                      onBlur={formik.handleBlur}
+                      invalid={
+                        formik.errors.lastname && formik.touched.lastname
+                      }
                       required
                     />
-                    {formik.errors.lastname ? (
+                    {formik.touched.lastname && formik.errors.lastname && (
                       <FormText color="danger">
                         {formik.errors.lastname}
                       </FormText>
-                    ) : null}
+                    )}
                   </FormGroup>
                   <FormGroup className="m-1">
                     <Label className="fw-bold">
@@ -261,12 +268,13 @@ export default function AddEmployee({ setAdd }) {
                       name="email"
                       value={formik.values.email}
                       onChange={formik.handleChange}
-                      invalid={formik.errors.email}
+                      onBlur={formik.handleBlur}
+                      invalid={formik.errors.email && formik.touched.email}
                       required
                     />
-                    {formik.errors.email ? (
+                    {formik.touched.email && formik.errors.email && (
                       <FormText color="danger">{formik.errors.email}</FormText>
-                    ) : null}
+                    )}
                   </FormGroup>
                   <FormGroup className="m-1">
                     <Label className="fw-bold">
@@ -279,18 +287,19 @@ export default function AddEmployee({ setAdd }) {
                       name="address"
                       value={formik.values.address}
                       onChange={formik.handleChange}
-                      invalid={formik.errors.address}
+                      onBlur={formik.handleBlur}
+                      invalid={formik.errors.address && formik.touched.address}
                       required
                     />
-                    {formik.errors.address ? (
+                    {formik.touched.address && formik.errors.address && (
                       <FormText color="danger">
                         {formik.errors.address}
                       </FormText>
-                    ) : null}
+                    )}
                   </FormGroup>
                   <FormGroup className="m-1">
                     <Label className="fw-bold">
-                      Select Department
+                      Select Status
                       <sup className="text-danger">*</sup>
                     </Label>
                     <Input
@@ -299,15 +308,16 @@ export default function AddEmployee({ setAdd }) {
                       name="status"
                       value={formik.values.status}
                       onChange={formik.handleChange}
-                      invalid={formik.errors.status}
+                      onBlur={formik.handleBlur}
+                      invalid={formik.errors.status && formik.touched.status}
                       required
                     >
                       <option value="active">Active</option>
                       <option value="inactive">In Active</option>
                     </Input>
-                    {formik.errors.status ? (
+                    {formik.touched.status && formik.errors.status && (
                       <FormText color="danger">{formik.errors.status}</FormText>
-                    ) : null}
+                    )}
                   </FormGroup>
                 </Col>
                 <Col>
@@ -322,14 +332,17 @@ export default function AddEmployee({ setAdd }) {
                       name="hire_date"
                       value={formik.values.hire_date}
                       onChange={formik.handleChange}
-                      invalid={formik.errors.hire_date}
+                      onBlur={formik.handleBlur}
+                      invalid={
+                        formik.errors.hire_date && formik.touched.hire_date
+                      }
                       required
                     />
-                    {formik.errors.address ? (
+                    {formik.touched.hire_date && formik.errors.hire_date && (
                       <FormText color="danger">
                         {formik.errors.hire_date}
                       </FormText>
-                    ) : null}
+                    )}
                   </FormGroup>
                   <FormGroup className="m-1">
                     <Label className="fw-bold">
@@ -342,7 +355,10 @@ export default function AddEmployee({ setAdd }) {
                       name="department"
                       value={formik.values.department}
                       onChange={formik.handleChange}
-                      invalid={formik.errors.department}
+                      onBlur={formik.handleBlur}
+                      invalid={
+                        formik.errors.department && formik.touched.department
+                      }
                       required
                     >
                       {departments.map((val) => (
@@ -351,11 +367,11 @@ export default function AddEmployee({ setAdd }) {
                         </option>
                       ))}
                     </Input>
-                    {formik.errors.department ? (
+                    {formik.touched.department && formik.errors.department && (
                       <FormText color="danger">
                         {formik.errors.department}
                       </FormText>
-                    ) : null}
+                    )}
                   </FormGroup>
                   <FormGroup className="mx-1">
                     <Label className="fw-bold">
@@ -368,12 +384,13 @@ export default function AddEmployee({ setAdd }) {
                       name="phone"
                       value={formik.values.phone}
                       onChange={formik.handleChange}
-                      invalid={formik.errors.phone}
+                      onBlur={formik.handleBlur}
+                      invalid={formik.errors.phone && formik.touched.phone}
                       required
                     />
-                    {formik.errors.phone ? (
+                    {formik.touched.phone && formik.errors.phone && (
                       <FormText color="danger">{formik.errors.phone}</FormText>
-                    ) : null}
+                    )}
                   </FormGroup>
                   <FormGroup className="m-1">
                     <Label className="fw-bold">
@@ -386,6 +403,7 @@ export default function AddEmployee({ setAdd }) {
                           type="radio"
                           name="gender"
                           onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
                           value="Male"
                         />
                         Male
@@ -395,17 +413,16 @@ export default function AddEmployee({ setAdd }) {
                           type="radio"
                           name="gender"
                           onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
                           value="Female"
                         />
                         Female
                       </Label>
-                      {formik.errors.gender ? (
-                        <div>
-                          <FormText color="danger">
-                            {formik.errors.gender}
-                          </FormText>
-                        </div>
-                      ) : null}
+                      {formik.touched.gender && formik.errors.gender && (
+                        <FormText color="danger">
+                          {formik.errors.gender}
+                        </FormText>
+                      )}
                     </FormGroup>
                   </FormGroup>
                 </Col>
@@ -414,12 +431,12 @@ export default function AddEmployee({ setAdd }) {
           </Row>
         </ModalBody>
         <ModalFooter className="bg-dark w-100">
-          <Button type="submit" color="success" className="m-auto">
-            submit
-          </Button>
           <Button color="danger" onClick={changeToggle}>
             <BsArrowLeftCircleFill className="login-icon" />
             Go Back
+          </Button>
+          <Button type="submit" color="success" className="m-auto">
+            submit
           </Button>
         </ModalFooter>
       </Form>

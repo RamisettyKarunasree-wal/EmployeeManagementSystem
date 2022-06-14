@@ -1,7 +1,6 @@
 const Employee = require('../models').Employee;
 const { body, validationResult, param } = require('express-validator');
 const Department = require('../models').Department;
-const Manager = require('../models').Manager;
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
@@ -256,7 +255,6 @@ router.put(
           include: [
             {
               model: Department,
-              include: [{ model: Manager }],
             },
           ],
         });
@@ -313,7 +311,7 @@ router.put(
   }
 );
 router.get('/', authentication, getEmployees);
-router.get('/:id',authentication, getEmployee);
-router.delete('/',authentication, deleteEmployees);
-router.delete('/:id',authentication, deleteEmployee);
+router.get('/:id', authentication, getEmployee);
+router.delete('/', authentication, deleteEmployees);
+router.delete('/:id', authentication, deleteEmployee);
 module.exports = router;

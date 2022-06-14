@@ -6,39 +6,36 @@ import axios from 'axios';
 import EmployeesContext from './EmployeesContext';
 
 export default function DeleteEmployee(props) {
-  const { state, dispatch, getEmployees } = useContext(EmployeesContext);
+  const { dispatch, getEmployees } = useContext(EmployeesContext);
   const [loading, setLoading] = useState(false);
   // eslint-disable-next-line react/prop-types
   const { id, toggle } = props;
   const deleteEmployee = async () => {
-    console.log(id);
     const sure = confirm('Do you want to delete the Employee for Sure?');
     if (sure) {
       setLoading(true);
-      await axios
-        .delete(`/employees/${id}`, {
+      try {
+        const res = await axios.delete(`/employees/${id}`, {
           headers: {
-            token: state.token,
+            token: JSON.parse(localStorage.getItem('token')),
           },
-        })
-        .then((res) => {
-          setLoading(false);
-          console.log(res);
-          getEmployees();
-          toggle();
-          setTimeout(() => {
-            alert(res.data.msg);
-          }, 1000);
-        })
-        .catch((error) => {
-          setLoading(false);
-          if (error.response.status === 400) {
-            console.log(error);
-          } else {
-            dispatch({ staus: error.response.status, error });
-            window.location.pathname = '/';
-          }
         });
+        setLoading(false);
+        console.log(res);
+        getEmployees();
+        toggle();
+        setTimeout(() => {
+          alert(res.data.msg);
+        }, 1000);
+      } catch (error) {
+        setLoading(false);
+        if (error.response.status === 400) {
+          console.log(error);
+        } else {
+          dispatch({ staus: error.response.status, error });
+          window.location.pathname = '/';
+        }
+      }
     }
   };
   return (

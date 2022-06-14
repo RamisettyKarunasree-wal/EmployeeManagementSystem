@@ -34,8 +34,6 @@ function App() {
   useEffect(() => {
     if (state.login) {
       getEmployees();
-    } else {
-      console.log('you are not logged in');
     }
   }, []);
   return (

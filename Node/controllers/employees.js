@@ -1,6 +1,5 @@
 const Employee = require('../models').Employee;
 const Department = require('../models').Department;
-const Manager = require('../models').Manager;
 const { param, validationResult } = require('express-validator');
 exports.getEmployees = async (req, res) => {
   try {
@@ -8,7 +7,6 @@ exports.getEmployees = async (req, res) => {
       include: [
         {
           model: Department,
-          include: [{ model: Manager }],
         },
       ],
     });
@@ -34,7 +32,7 @@ exports.getEmployee = [
       try {
         const employee = await Employee.findOne({
           where: { id: req.params.id },
-          include: { model: Department, include: { model: Manager } },
+          include: { model: Department },
         });
         if (employee) {
           res.status(200).json(employee);
@@ -81,7 +79,7 @@ exports.deleteEmployee = [
         console.log(error);
         res
           .status(500)
-          .json({ error: 'internal error occured , check console' });
+          .json({ error: `internal error occured , check console-${error}` });
       }
     }
   },

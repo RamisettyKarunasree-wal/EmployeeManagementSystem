@@ -32,25 +32,23 @@ export default function Login() {
     onSubmit: async (values) => {
       setLoading(true);
       setError('');
-      await axios
-        .post('/users/login', {
+      try {
+        const res = await axios.post('/users/login', {
           username: values.username,
           password: values.password,
-        })
-        .then((res) => {
-          setToken(res.data.jwt);
-          setLoginUser(res.data.user);
-          setLogin(true);
-          setLoginSuccess(true);
-          setTimeout(() => {
-            setLoading(false);
-            window.location.pathname = '/';
-          }, 3000);
-        })
-        .catch((err) => {
-          setError(err.response.Error.error);
-          setLoading(false);
         });
+        setToken(res.data.jwt);
+        setLoginUser(res.data.user);
+        setLogin(true);
+        setLoginSuccess(true);
+        setTimeout(() => {
+          setLoading(false);
+          window.location.pathname = '/';
+        }, 3000);
+      } catch (err) {
+        setError(err.response.Error.error);
+        setLoading(false);
+      }
     },
     validate() {
       const errors = {};
@@ -66,6 +64,9 @@ export default function Login() {
 
   return (
     <Container fluid className="min-vh-100 login-page text-white">
+      <h1 className="fst-italic text-decoration-underline text-center p-2">
+        Employee App
+      </h1>
       <Row>
         <Col
           xs={11}
@@ -96,16 +97,17 @@ export default function Login() {
                     type="text"
                     placeholder="Username"
                     name="username"
+                    onBlur={formik.handleBlur}
                     value={formik.values.username}
                     onChange={formik.handleChange}
-                    invalid={formik.errors.username}
+                    invalid={formik.errors.username && formik.touched.username}
                     required
                   />
                 </Col>
               </Row>
               <Row>
                 <Col>
-                  {formik.errors.username ? (
+                  {formik.errors.username && formik.touched.username ? (
                     <FormText color="danger">{formik.errors.username}</FormText>
                   ) : null}
                 </Col>
@@ -123,14 +125,15 @@ export default function Login() {
                     name="password"
                     value={formik.values.password}
                     onChange={formik.handleChange}
-                    invalid={formik.errors.password}
+                    onBlur={formik.handleBlur}
+                    invalid={formik.errors.password && formik.touched.password}
                     required
                   />
                 </Col>
               </Row>
               <Row>
                 <Col>
-                  {formik.errors.password ? (
+                  {formik.errors.password && formik.touched.password ? (
                     <FormText color="danger">{formik.errors.password}</FormText>
                   ) : null}
                 </Col>

@@ -12,29 +12,27 @@ export default function DeleteAll() {
     const sure = confirm('Do you want to delete the Employee for Sure?');
     if (sure) {
       setLoading(true);
-      await axios
-        .delete('/employees', {
+      try {
+        const res = await axios.delete('/employees', {
           headers: {
             token: state.token,
           },
-        })
-        .then((res) => {
-          setLoading(false);
-          console.log(res);
-          getEmployees();
-          setTimeout(() => {
-            alert(res.data.msg);
-          }, 1000);
-        })
-        .catch((error) => {
-          setLoading(false);
-          if (error.response.status === 400) {
-            console.log(error);
-          } else {
-            dispatch({ staus: error.response.status, error });
-            window.location.pathname = '/';
-          }
         });
+        setLoading(false);
+        console.log(res);
+        getEmployees();
+        setTimeout(() => {
+          alert(res.data.msg);
+        }, 1000);
+      } catch (error) {
+        setLoading(false);
+        if (error.response.status === 400) {
+          console.log(error);
+        } else {
+          dispatch({ staus: error.response.status, error });
+          window.location.pathname = '/';
+        }
+      }
     }
   };
   return (

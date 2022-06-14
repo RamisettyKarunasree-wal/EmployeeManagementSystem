@@ -12,4 +12,5 @@ exports.runSchedule = () => {
     }
     console.log('delete inactive Employees schedule running....');
   });
+  return true;
 };

@@ -19,26 +19,24 @@ export default function DeleteSelected({
   // eslint-disable-next-line react/prop-types
   const deleteSingle = async (id) => {
     setLoading(true);
-    await axios
-      .delete(`/employees/${Number(id)}`, {
+    try {
+      const res = await axios.delete(`/employees/${Number(id)}`, {
         headers: {
           token: state.token,
         },
-      })
-      .then((res) => {
-        setLoading(false);
-        getEmployees();
-        console.log(res);
-      })
-      .catch((error) => {
-        setLoading(false);
-        if (error.response.status === 400) {
-          console.log(error);
-        } else {
-          dispatch({ staus: error.response.status, error });
-          window.location.pathname = '/';
-        }
       });
+      setLoading(false);
+      getEmployees();
+      console.log(res);
+    } catch (error) {
+      setLoading(false);
+      if (error.response.status === 400) {
+        console.log(error);
+      } else {
+        dispatch({ staus: error.response.status, error });
+        window.location.pathname = '/';
+      }
+    }
   };
   const deleteBulk = async () => {
     const sure = confirm('Do you want to delete the selcted Employees?');

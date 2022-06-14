@@ -78,32 +78,38 @@ export default function EditEmployee({ setEdit, employee, parentToggle }) {
       formData.append('status', values.status);
       setMsg('');
       setError('');
-      await axios
-        .put(`/employees/${Number(employee.id)}`, formData, {
-          headers: {
-            token: JSON.parse(localStorage.getItem('token')),
-          },
-        })
-        .then((res) => {
-          setTimeout(() => {
-            setLoading(false);
-            setMsg(res.data.msg);
-          }, 2000);
-          console.log(res.data);
-          getEmployees();
-        })
-        .catch((err) => {
-          setTimeout(() => {
-            setLoading(false);
-            if (err.response.status === 400) {
-              setError(err.response.data.msg);
+      try {
+        const res = await axios.put(
+          `/employees/${Number(employee.id)}`,
+          formData,
+          {
+            headers: {
+              token: JSON.parse(localStorage.getItem('token')),
+            },
+          }
+        );
+        setTimeout(() => {
+          setLoading(false);
+          setMsg(res.data.msg);
+        }, 2000);
+        console.log(res.data);
+        getEmployees();
+      } catch (err) {
+        setTimeout(() => {
+          setLoading(false);
+          if (err.response.status === 400) {
+            if (err.response.data.errors) {
+              setError(err.response.data.errors.errors[0].msg);
             } else {
-              dispatch({ status: err.response.status, error: err });
-              window.location.pathname = '/';
+              setError(err.response.data.msg);
             }
-          }, 2000);
-          console.log(err);
-        });
+          } else {
+            dispatch({ status: err.response.status, error: err });
+            window.location.pathname = '/';
+          }
+        }, 2000);
+        console.log(err);
+      }
     },
     validate() {
       const errors = {};
@@ -221,15 +227,18 @@ export default function EditEmployee({ setEdit, employee, parentToggle }) {
                       <sup className="text-danger">*</sup>
                     </Label>
                     <Input
+                      onBlur={formik.handleBlur}
                       type="text"
                       placeholder="firstname"
                       name="firstname"
                       value={formik.values.firstname}
                       onChange={formik.handleChange}
-                      invalid={formik.errors.firstname}
+                      invalid={
+                        formik.errors.firstname && formik.touched.firstname
+                      }
                       required
                     />
-                    {formik.errors.firstname ? (
+                    {formik.errors.firstname && formik.touched.firstname ? (
                       <FormText color="danger">
                         {formik.errors.firstname}
                       </FormText>
@@ -241,15 +250,18 @@ export default function EditEmployee({ setEdit, employee, parentToggle }) {
                       <sup className="text-danger">*</sup>
                     </Label>
                     <Input
+                      onBlur={formik.handleBlur}
                       type="text"
                       placeholder="lastname"
                       name="lastname"
                       value={formik.values.lastname}
                       onChange={formik.handleChange}
-                      invalid={formik.errors.lastname}
+                      invalid={
+                        formik.errors.lastname && formik.touched.lastname
+                      }
                       required
                     />
-                    {formik.errors.lastname ? (
+                    {formik.errors.lastname && formik.touched.lastname ? (
                       <FormText color="danger">
                         {formik.errors.lastname}
                       </FormText>
@@ -261,15 +273,16 @@ export default function EditEmployee({ setEdit, employee, parentToggle }) {
                       <sup className="text-danger">*</sup>
                     </Label>
                     <Input
+                      onBlur={formik.handleBlur}
                       type="email"
                       placeholder="email"
                       name="email"
                       value={formik.values.email}
                       onChange={formik.handleChange}
-                      invalid={formik.errors.email}
+                      invalid={formik.errors.email && formik.touched.email}
                       required
                     />
-                    {formik.errors.email ? (
+                    {formik.errors.email && formik.touched.email ? (
                       <FormText color="danger">{formik.errors.email}</FormText>
                     ) : null}
                   </FormGroup>
@@ -279,15 +292,16 @@ export default function EditEmployee({ setEdit, employee, parentToggle }) {
                       <sup className="text-danger">*</sup>
                     </Label>
                     <Input
+                      onBlur={formik.handleBlur}
                       type="text"
                       placeholder="address"
                       name="address"
                       value={formik.values.address}
                       onChange={formik.handleChange}
-                      invalid={formik.errors.address}
+                      invalid={formik.errors.address && formik.touched.address}
                       required
                     />
-                    {formik.errors.address ? (
+                    {formik.errors.address && formik.touched.address ? (
                       <FormText color="danger">
                         {formik.errors.address}
                       </FormText>
@@ -299,12 +313,13 @@ export default function EditEmployee({ setEdit, employee, parentToggle }) {
                       <sup className="text-danger">*</sup>
                     </Label>
                     <Input
+                      onBlur={formik.handleBlur}
                       type="select"
                       placeholder="status"
                       name="status"
                       value={formik.values.status}
                       onChange={formik.handleChange}
-                      invalid={formik.errors.status}
+                      invalid={formik.errors.status && formik.touched.status}
                       required
                     >
                       <option value="active">Active</option>
@@ -322,6 +337,7 @@ export default function EditEmployee({ setEdit, employee, parentToggle }) {
                       <sup className="text-danger">*</sup>
                     </Label>
                     <Input
+                      onBlur={formik.handleBlur}
                       id="date"
                       type="date"
                       placeholder="hire_date"
@@ -330,10 +346,12 @@ export default function EditEmployee({ setEdit, employee, parentToggle }) {
                       onChange={(e) => {
                         setDate(e.target.value);
                       }}
-                      invalid={formik.errors.hire_date}
+                      invalid={
+                        formik.errors.hire_date && formik.touched.hire_date
+                      }
                       required
                     />
-                    {formik.errors.address ? (
+                    {formik.errors.address && formik.touched.address ? (
                       <FormText color="danger">
                         {formik.errors.hire_date}
                       </FormText>
@@ -345,13 +363,16 @@ export default function EditEmployee({ setEdit, employee, parentToggle }) {
                       <sup className="text-danger">*</sup>
                     </Label>
                     <Input
+                      onBlur={formik.handleBlur}
                       type="select"
                       placeholder="department"
                       name="department"
                       onChange={(e) => {
                         setDepartment(e.target.value);
                       }}
-                      invalid={formik.errors.department}
+                      invalid={
+                        formik.errors.department && formik.touched.department
+                      }
                       required
                     >
                       {departments.map((val) => (
@@ -372,15 +393,16 @@ export default function EditEmployee({ setEdit, employee, parentToggle }) {
                       <sup className="text-danger">*</sup>
                     </Label>
                     <Input
+                      onBlur={formik.handleBlur}
                       type="number"
                       placeholder="phone"
                       name="phone"
                       value={formik.values.phone}
                       onChange={formik.handleChange}
-                      invalid={formik.errors.phone}
+                      invalid={formik.errors.phone && formik.touched.phone}
                       required
                     />
-                    {formik.errors.phone ? (
+                    {formik.errors.phone && formik.touched.phone ? (
                       <FormText color="danger">{formik.errors.phone}</FormText>
                     ) : null}
                   </FormGroup>
@@ -392,6 +414,7 @@ export default function EditEmployee({ setEdit, employee, parentToggle }) {
                     <FormGroup>
                       <Label check className="login-icon logout-icon">
                         <Input
+                          onBlur={formik.handleBlur}
                           type="radio"
                           name="gender"
                           value="Male"
@@ -405,6 +428,7 @@ export default function EditEmployee({ setEdit, employee, parentToggle }) {
                       </Label>
                       <Label check className="logout-icon">
                         <Input
+                          onBlur={formik.handleBlur}
                           type="radio"
                           name="gender"
                           onChange={(e) => {
@@ -430,9 +454,6 @@ export default function EditEmployee({ setEdit, employee, parentToggle }) {
           </Row>
         </ModalBody>
         <ModalFooter className="bg-dark">
-          <Button type="submit" color="primary" className="m-auto">
-            Save Changes
-          </Button>
           <Button
             color="danger"
             onClick={() => {
@@ -442,6 +463,9 @@ export default function EditEmployee({ setEdit, employee, parentToggle }) {
           >
             <BsArrowLeftCircleFill className="login-icon" />
             Go Back
+          </Button>
+          <Button type="submit" color="primary" className="m-auto">
+            Save Changes
           </Button>
         </ModalFooter>
       </Form>

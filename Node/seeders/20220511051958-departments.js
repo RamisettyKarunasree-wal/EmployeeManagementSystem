@@ -1,37 +1,32 @@
-'use strict'
+'use strict';
 
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.bulkInsert('Departments', [
       {
-        name: 'department1',
-        manager: 1,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        name: 'Marketing',
       },
       {
-        name: 'department2',
-        manager: 2,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        name: 'Sales',
       },
       {
-        name: 'department3',
-        manager: 3,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        name: 'Human Resources',
       },
-    ])
+      {
+        name: 'Finance',
+      },
+    ]);
   },
 
   async down(queryInterface, Sequelize) {
-    const Op = Sequelize.Op
+    const Op = Sequelize.Op;
     await queryInterface.bulkDelete('Departments', {
       [Op.or]: [
-        { name: 'department1' },
-        { name: 'department2' },
-        { name: 'department3' },
+        { name: 'Marketing' },
+        { name: 'Sales' },
+        { name: 'Human Resources' },
+        { name: 'Finance' },
       ],
-    })
+    });
   },
-}
+};

@@ -162,7 +162,7 @@ export default function Employees() {
             onChange={(e) => setFilterText(e.target.value)}
             onClear={handleClear}
             filterText={filterText}
-            placeholder=" search with firstname"
+            placeholder=" Search Here"
             className="border border-dark"
           />
         </Col>
@@ -171,8 +171,22 @@ export default function Employees() {
   }, [filterText, resetPaginationToggle]);
   const filteredItems = state.employees.filter(
     (item) =>
-      item.firstname &&
-      item.firstname.toLowerCase().includes(filterText.toLowerCase())
+      (item.firstname &&
+        item.firstname.toLowerCase().includes(filterText.toLowerCase())) ||
+      (item.lastname &&
+        item.lastname.toLowerCase().includes(filterText.toLowerCase())) ||
+      (item.email &&
+        item.email.toLowerCase().includes(filterText.toLowerCase())) ||
+      (item.address &&
+        item.address.toLowerCase().includes(filterText.toLowerCase())) ||
+      (item.Department.name &&
+        item.Department.name
+          .toLowerCase()
+          .includes(filterText.toLowerCase())) ||
+      (item.gender &&
+        item.gender.toLowerCase().includes(filterText.toLowerCase())) ||
+      (item.status &&
+        item.status.toLowerCase().includes(filterText.toLowerCase()))
   );
   return (
     <Container fluid>

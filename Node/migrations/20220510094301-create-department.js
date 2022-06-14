@@ -17,19 +17,12 @@ module.exports = {
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
+        defaultValue: Sequelize.fn('now'),
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-      },
-      manager: {
-        type: Sequelize.INTEGER,
-        onDelete: 'CASCADE',
-        references: {
-          model: 'Managers',
-          key: 'id',
-          as: 'manager',
-        },
+        defaultValue: Sequelize.fn('now'),
       },
     });
   },

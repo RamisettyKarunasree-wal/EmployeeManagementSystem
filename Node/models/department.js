@@ -12,11 +12,7 @@ module.exports = (sequelize, DataTypes) => {
       this.hasMany(models.Employee, {
         foreignKey: 'department',
         as: 'employees',
-      }),
-        this.belongsTo(models.Manager, {
-          foreignKey: 'manager',
-          onDelete: 'CASCADE',
-        });
+      });
     }
   }
   Department.init(
